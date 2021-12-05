@@ -6,11 +6,9 @@
   "keywords": [
     "adi-cacheducks",
     "cacheducks",
-    "pubsub",
-    "publish subscribe",
-    "caching",
-    "local storage",
-    "indexeddb"
+    "localStorage pubsub",
+    "caching pubsub",
+    "indexeddb pubsub"
   ],
   "author": "JACKCOM",
   "repository": {
