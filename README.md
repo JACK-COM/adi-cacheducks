@@ -215,23 +215,46 @@ type ADIDBInterface<T> = {
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: T): Promise<T | null>;
   removeItem(id: any): Promise<any>;
-} & { [name: string]: (...args: any[]) => any }
+} 
 ```
 where the generic `<T>` represents your database model.\
 (**Example:** if your database model is `User`, then `listItems` should return a list of type `User[]`)
 
 ---
 
-# **Fetching Data** in Dependant Components
-- Subscribe to some global `state`
-- Check `state` for data
-  - If not found, call `ADI.publishItem( dataKey )`
-  - Await `state` updates
-- Use data from `state`
+# **Using the** `ADI` in an App
+
+An in-memory store works well enough for small applications, but some additional caching is required as you begin to scale. This can come with issues you have multiple components either updating or reading from a cache store. 
+
+For maximum profit, it is important to identify a single source of truth for your app data. 
+
+The expected/assumed flow of data is:
+
+    remote -> [ ADI -> (cache) -> ]  -> [ App state -> ] UI component
+
+where `[ App state ]` represents some state manager like **Redux**, **Vuex**, or **raphsducks**. It is entirely optional, since a component can also subscribe to the `ADI` directly. As you can see, the `ADI` only deals with receiving the data from some source, caching, and then emitting it. 
+
+Using the ADI, the following would have the same effect: 
+
+> - Component subscribes to some global `state` using `onChange` listener
+> - On load, check `state` for data
+>   - If not found, call `ADI.publishItem( dataKey )`
+> - Await `state` updates via `onChange` listener
+>   - Use data from `state` in `onChange` listener
+
+OR
+
+> - Component subscribes to ADI using `onChange` listener
+> - On load, Component calls `ADI.publishItem( dataKey )`
+>   - `onChange` is triggered 
+>     - Use data in `onChange` listener
+
+OR
+
+> - On load, Component calls `ADI.publishItem( dataKey )`
+>   - Awaits response, and stores in a const `data`
 
 
-
-Empty project.
 
 ## Development
 
