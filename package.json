@@ -1,7 +1,7 @@
 {
   "name": "@jackcom/adi-cacheducks",
-  "version": "1.0.2",
-  "description": "A unidirectional data-flow manager for the front-end. It has pub-sub capabilities, and focuses on reading from/writing to localStorage or other cache implementation.",
+  "version": "1.0.3",
+  "description": "A data caching interface for the front-end. It has pub-sub capabilities, and focuses on reading from/writing to localStorage or other cache implementation (e.g. IndexedDB).",
   "main": "lib/bundle.js",
   "keywords": [
     "adi-cacheducks",
