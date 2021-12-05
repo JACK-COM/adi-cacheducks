@@ -1,6 +1,6 @@
 {
   "name": "@jackcom/adi-cacheducks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A unidirectional data-flow manager for the front-end. It has pub-sub capabilities, and focuses on reading from/writing to localStorage or other cache implementation.",
   "main": "lib/bundle.js",
   "keywords": [
@@ -13,9 +13,14 @@
     "indexeddb"
   ],
   "author": "JACKCOM",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JACK-COM/adi-cacheducks.git"
+  },
   "license": "WTFPL",
   "scripts": {
     "clean": "rm dist/bundle.js",
+    "build": "npm run build-prod",
     "build-dev": "webpack --mode development",
     "build-prod": "webpack --mode production",
     "test": "jest --watchAll",
