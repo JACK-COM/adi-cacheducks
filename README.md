@@ -18,22 +18,31 @@ The terms below are kept deliberately vague so that the implementer can choose t
 # **Application Data Interface** | Exports
 The library contains a single export, `createDataCacheAPI( cacheMap: ADICacheDBMap )`\
 This function expects a valid `cacheMap`, a key-value store where every `key` is the name of a `storage` or `cache` instance (e.g. name of a table in **IndexedDB**) and the *value* of the key is an object that implements `ADIDBInterface`, such that:
-### Example
+### Example of an implementation
 ```typescript
-// Example of a cacheMap implementation
+// The "cachemap" should be where you put all your local db APIs.
+// Below, we have a single "users" API for a local "users" table
 const cacheMap = {
-  // There can be an arbitrary number of tables that
-  // follow any preferred naming conventions.
-  usersTable: {
-    listItems(): Promise<T[]>;
-    getItem(id: any): Promise<T | null>;
-    putItem(id: any, val: T): Promise<T | null>;
-    removeItem(id: any): Promise<any>;
+  users: {
+    async listItems(opts: ListQueryOpts) { ... },
+    async getItem(id: any) { ... },
+    async putItem(id: any, val: DBUser) { ... },
+    async removeItem(id: any): { ... },
   }
 }
 
+// Instantiate your cache interface
+const ADI = createDataCacheAPI( cacheMap )
+ADI.onApplicationStart()
 
-const myAPI = createDataCacheAPI( cacheMap )
+// Asynchronously fetch or list items from the db
+ADI.publishItem(someId, "users").then( ... )
+ADI.listItems({ cacheKey: "users" }).then( ... )
+
+// Get notified when the db is updated 
+ADI.subscribeToCaches((key: string, val: any, cache: string) => {
+  // ...
+}, ["users"])
 ```
 
 `createDataCacheAPI( ... )` returns an `AppDataInterface` with the following methods:
@@ -227,15 +236,49 @@ A key-value object that serves as an API for your local database (e.g. `IndexedD
 
 ```typescript
 type ADIDBInterface<T> = {
-  listItems(): Promise<T[]>;
+  listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
-  putItem(id: any, val: T): Promise<T | null>;
+  putItem(id: any, val: any): Promise<any | null>;
   removeItem(id: any): Promise<any>;
-} 
+}
 ```
 where the generic `<T>` represents your database model.\
 (**Example:** if your database model is `User`, then `listItems` should return a list of type `User[]`)
 
+## ListQueryOpts
+A key-value object with options for enhanced storage queries. Allows the developer to implement paginated responses.
+
+
+```typescript
+type ListQueryOpts = {
+  cacheKey: string,
+  page?: number;
+  resultsPerPage?: number;
+  orderBy?: string;
+};
+
+const opts: ListQueryOpts = { ... }
+ADI.listItems(opts).then( ... );
+```
+## ListQueryOpts
+A key-value response (from local cache/db) to a "list-all" query.\
+Allows the developer to implement paginated responses.
+
+```typescript
+type PaginatedDBResults<T> = {
+  totalResults?: number;
+  totalPages?: number;
+  resultsPerPage?: number;
+  data: T[];
+  page?: number;
+};
+
+const opts: ListQueryOpts = { ... }
+const response: PaginatedDBResult<DBUser> = await ADI.listItems(opts);
+
+response.data.forEach( ... )
+response.page ... 
+```
 ---
 
 # **Using the** `ADI` in an App

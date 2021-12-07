@@ -19,6 +19,7 @@ export type AppDataInterface = {
 };
 
 export type ListQueryOpts = {
+  cacheKey: string,
   page?: number;
   resultsPerPage?: number;
   orderBy?: string;
@@ -33,7 +34,7 @@ export type PaginatedDBResults<T> = {
 };
 
 export type ADIDBInterface<T> = {
-  listItems(opts?: ListQueryOpts): Promise<PaginatedDBResults<T>>;
+  listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: any): Promise<any | null>;
   removeItem(id: any): Promise<any>;
@@ -42,13 +43,13 @@ export type ADIDBInterface<T> = {
 export type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /**
- * A `cache` that can be used for long-term local data storage. The
- * underlying technology does not matter, as long as the supplied `cache`
- * property implements `ADICacheInterface`
+ * INTERNAL: Interface for local `cache` read/write. The underlying 
+ * technology does not matter, as long as the supplied `cache`
+ * property implements `ADIDBInterface`
  */
 export type ADICacheInterface = {
   /** List items in a specific db or storage cache */
-  listItems(cache: string): Promise<any[]>;
+  listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<any>>;
   /** Get an item from a db or storage cache */
   getItem(key: string, cache?: string): any | null;
   /** Add/Update an item in a db or storage cache */
