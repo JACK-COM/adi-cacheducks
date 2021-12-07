@@ -29,7 +29,7 @@ export function onApplicationStart(config: ADICacheInterface) {
 }
 
 /** Notify subscribers (and callback fn) of data fetch/update */
-export async function publishItem(
+export async function getItem(
   key: string,
   cacheKey?: string,
   fallback = () => Promise.resolve(null as any)
@@ -42,8 +42,18 @@ export async function publishItem(
     return cacheItem(key, data, cacheKey);
   }
 
-  notifyAll(key, data, cacheKey);
   return data;
+}
+
+/** Notify subscribers (and callback fn) of data fetch/update */
+export async function publishItem(
+  key: string,
+  cacheKey?: string,
+  fallback = () => Promise.resolve(null as any)
+) {
+  if (!initialized) publishError("ADI is not initialized");
+  const data = await getItem(key, cacheKey, fallback);
+  notifyAll(key, data, cacheKey);
 }
 
 /** Fetch and return a list of items */
@@ -54,8 +64,16 @@ export async function listItems(
   if (!initialized) publishError("ADI is not initialized");
   if (!opts.cacheKey) return [];
   const data = (await cache?.listItems(opts)) || (await fallback());
-  notifyAll("all", data, opts.cacheKey);
   return data;
+}
+
+/** Fetch and return a list of items */
+export async function publishItems(
+  opts: ListQueryOpts,
+  fallback = () => Promise.resolve([] as any)
+) {
+  const data = await listItems(opts, fallback);
+  notifyAll("all", data, opts.cacheKey);
 }
 
 /** Notify subscribers (and callback fn) of data fetch/update */
@@ -115,8 +133,7 @@ export function cacheMultiple(items: CacheItemArgs[]) {
   if (!items.length) return;
 
   items.forEach(({ key, value, cacheKey }) => {
-    cache?.setItem(key, value, cacheKey);
-    notifyAll(key, value, cacheKey);
+    cacheItem(key, value, cacheKey);
   });
 }
 

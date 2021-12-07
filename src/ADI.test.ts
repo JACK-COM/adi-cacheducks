@@ -174,11 +174,11 @@ describe("Application Data Interface API", () => {
 
     testAPI.onApplicationStart();
 
-    return testAPI.publishItem("hello", "users").then((val) => {
+    return testAPI.getItem("doesNotExist", "users").then((val) => {
       expect(val).toBe(null);
       expect(spy).toHaveBeenCalled();
       expect(spy2).not.toHaveBeenCalled();
-      expect(listener).toHaveBeenCalledWith("hello", null, "users");
+      expect(listener).toHaveBeenCalledWith("doesNotExist", null, "users");
       localStorage.clear();
       unsubscribe();
     });
@@ -191,7 +191,7 @@ describe("Application Data Interface API", () => {
     testAPI.onApplicationStart();
 
     return testAPI.publishItem("hello").then((val) => {
-      expect(val).toBe(null);
+      expect(val).toBe(undefined);
       expect(listener).toHaveBeenCalledWith("hello", null, undefined);
       localStorage.clear();
       unsubscribe();
@@ -218,7 +218,7 @@ describe("Application Data Interface API", () => {
 
     testAPI.onApplicationStart();
 
-    return testAPI.publishItem("hello", "doesNotExist").then((val) => {
+    return testAPI.getItem("hello", "doesNotExist").then((val) => {
       expect(val).toBe(null);
       expect(listener).toHaveBeenCalledWith("hello", null, "doesNotExist");
       unsubscribe();
@@ -234,7 +234,7 @@ describe("Application Data Interface API", () => {
     return testAPI.listItems({ cacheKey: "users" }).then((val) => {
       expect(val.data).toBeDefined();
       expect(Array.isArray(val.data)).toBe(true);
-      expect(listener).toHaveBeenCalledWith("all", { data: [] }, "users");
+      expect(listener).not.toHaveBeenCalled();
       unsubscribe();
     });
   });
