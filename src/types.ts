@@ -18,18 +18,32 @@ export type AppDataInterface = {
   onApplicationEnd(): void;
 };
 
+export type ListQueryOpts = {
+  page?: number;
+  resultsPerPage?: number;
+  orderBy?: string;
+};
+
+export type PaginatedDBResults<T> = {
+  totalResults?: number;
+  totalPages?: number;
+  resultsPerPage?: number;
+  data: T[];
+  page?: number;
+};
+
 export type ADIDBInterface<T> = {
-  listItems(): Promise<T[]>;
+  listItems(opts?: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
-  putItem(id: any, val: T): Promise<T | null>;
+  putItem(id: any, val: any): Promise<any | null>;
   removeItem(id: any): Promise<any>;
-} & { [name: string]: (...args: any[]) => any };
+};
 
 export type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /**
- * A `cache` that can be used for long-term local data storage. The 
- * underlying technology does not matter, as long as the supplied `cache` 
+ * A `cache` that can be used for long-term local data storage. The
+ * underlying technology does not matter, as long as the supplied `cache`
  * property implements `ADICacheInterface`
  */
 export type ADICacheInterface = {
