@@ -13,6 +13,7 @@ declare type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /** Query options for listing all items in a db */
 declare type ListQueryOpts = {
+  cacheKey: string,
   page?: number;
   resultsPerPage?: number;
   orderBy?: string;
