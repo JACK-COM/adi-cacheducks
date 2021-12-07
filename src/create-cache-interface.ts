@@ -1,4 +1,4 @@
-import { ADICacheInterface, ADICacheDBMap } from "./types";
+import { ADICacheInterface, ADICacheDBMap, ListQueryOpts } from "./types";
 
 /**
  * Creates and returns a `Cache Interface`, an object that reads from/
@@ -15,13 +15,15 @@ export default function createCacheInterface(
       if (!cacheKey) return local.getItem(key) || null;
       const db = dbs[cacheKey];
       return db
-        ? await (key === "all" ? db.listItems() : db.getItem(key))
+        ? await (key === "all" ? db.listItems({ cacheKey }) : db.getItem(key))
         : null;
     },
 
-    async listItems(cacheKey: string) {
+    async listItems(opts: ListQueryOpts) {
+      const { cacheKey } = opts;
+      const empty = { data: [] };
       const db = dbs[cacheKey];
-      return db ? (await db.listItems()) || [] : [];
+      return db ? (await db.listItems(opts)) || empty : empty;
     },
 
     /** Remove an item from DB */

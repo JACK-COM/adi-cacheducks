@@ -12,7 +12,7 @@ const makeDBCache = () => ({
     return Promise.resolve(val);
   },
   listItems() {
-    return Promise.resolve([]);
+    return Promise.resolve({ data: [] });
   },
   removeItem(id: any) {
     return Promise.resolve(id);
@@ -232,9 +232,9 @@ describe("Application Data Interface API", () => {
     testAPI.onApplicationStart();
 
     return testAPI.listItems("users").then((val) => {
-      const expected = JSON.stringify([]);
-      expect(JSON.stringify(val)).toBe(expected);
-      expect(listener).toHaveBeenCalledWith("all", [], "users");
+      expect(val.data).toBeDefined();
+      expect(Array.isArray(val.data)).toBe(true);
+      expect(listener).toHaveBeenCalledWith("all", { data: [] }, "users");
       unsubscribe();
     });
   });
