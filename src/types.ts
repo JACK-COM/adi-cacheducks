@@ -33,7 +33,7 @@ export type PaginatedDBResults<T> = {
   page?: number;
 };
 
-export type ADIDBInterface<T> = Record<string, (a?: any) => any> & {
+export type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
   listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: any): Promise<any | null>;
