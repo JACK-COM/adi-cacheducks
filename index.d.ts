@@ -45,7 +45,7 @@ declare type AppDataInterface = {
   /** Asserts whether the `ADI` instance has been initialized with a call to` onApplicationStart()`. */
   isInitialized(): boolean;
   /** Retrieve a list from the specified cache. */
-  listItems(cacheKey: string, fallback?: () => Promise<any[]>): Promise<any[]>;
+  listItems(opts: ListQueryOpts, fallback?: () => Promise<any[]>): Promise<PaginatedDBResults<any>>;
   /** Reset `ADI` to pre-initialized state. Disables reading from/writing to cache: use on [ user disconnect, app pause, etc ] */
   onApplicationEnd(): void;
   /** Initializes the `ADI` and gets it ready for front-end (or other app) interaction */
