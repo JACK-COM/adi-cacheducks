@@ -47,7 +47,7 @@ function validateCacheInterface(db: ADIDBInterface<any>, n: string) {
 
   // console.log({ db })
   return required.reduce(
-    (v, fn) => v && dbAPI.includes(fn) && typeof db[fn] === "function",
+    (v, fn) => v && dbAPI.includes(fn) && typeof (db as any)[fn] === "function",
     true
   );
 }

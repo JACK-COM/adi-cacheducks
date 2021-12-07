@@ -19,7 +19,7 @@ export type AppDataInterface = {
 };
 
 export type ListQueryOpts = {
-  cacheKey: string,
+  cacheKey: string;
   page?: number;
   resultsPerPage?: number;
   orderBy?: string;
@@ -33,7 +33,7 @@ export type PaginatedDBResults<T> = {
   page?: number;
 };
 
-export type ADIDBInterface<T> = {
+export type ADIDBInterface<T> = Record<string, (a?: any) => any> & {
   listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: any): Promise<any | null>;
@@ -43,7 +43,7 @@ export type ADIDBInterface<T> = {
 export type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /**
- * INTERNAL: Interface for local `cache` read/write. The underlying 
+ * INTERNAL: Interface for local `cache` read/write. The underlying
  * technology does not matter, as long as the supplied `cache`
  * property implements `ADIDBInterface`
  */

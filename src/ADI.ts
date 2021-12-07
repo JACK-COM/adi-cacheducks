@@ -2,6 +2,7 @@ import {
   ADICacheInterface,
   CacheItemArgs,
   KeyValConsumer,
+  ListQueryOpts,
   Unsubscriber,
 } from "./types";
 
@@ -47,13 +48,13 @@ export async function publishItem(
 
 /** Fetch and return a list of items */
 export async function listItems(
-  cacheKey: string,
+  opts: ListQueryOpts,
   fallback = () => Promise.resolve([] as any)
 ) {
   if (!initialized) publishError("ADI is not initialized");
-  if (!cacheKey) return [];
-  const data = (await cache?.listItems(cacheKey)) || (await fallback());
-  notifyAll("all", data, cacheKey);
+  if (!opts.cacheKey) return [];
+  const data = (await cache?.listItems(opts)) || (await fallback());
+  notifyAll("all", data, opts.cacheKey);
   return data;
 }
 
