@@ -1,23 +1,5 @@
 export type Unsubscriber = { (): any };
 
-export type AppDataInterface = {
-  initialized: boolean;
-  onApplicationStart(opts: ADICacheDBMap): any;
-  publishItem(
-    key: string,
-    cacheKey?: string | null,
-    fallbackFetch?: () => Promise<any>
-  ): any;
-  cacheItem(key: string, value: any): any;
-  subscribe(fn: KeyValConsumer): Unsubscriber;
-  subscribeToCaches(
-    fn: KeyValConsumer,
-    keys: string[],
-    cacheKey?: string | null
-  ): Unsubscriber;
-  onApplicationEnd(): void;
-};
-
 export type ListQueryOpts = {
   cacheKey: string;
   page?: number;

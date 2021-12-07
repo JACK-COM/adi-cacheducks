@@ -49,7 +49,7 @@ ADI.subscribeToCaches((key: string, val: any, cache: string) => {
 
 ### ADI instance
 ```typescript
-interface AppDataInterface {
+interface AppDataInterface {{
   /** Write an incoming value to the supplied `cache`, or remove the supplied `key` if `value` is falsy (`undefined` or `null`). */
   cacheItem(key: string, value: any, cacheKey?: string): any;
   
@@ -59,8 +59,18 @@ interface AppDataInterface {
   /** Asserts whether the `ADI` instance has been initialized with a call to` onApplicationStart()`. */
   isInitialized(): boolean;
   
+  /** Retrieve (or optionally fetch, cache, and return) data from a db/cache */
+  getItem(
+    key: string,
+    cacheKey?: string,
+    fallback?: () => Promise<any | null>
+  ): Promise<any | null>;
+  
   /** Retrieve a list from the specified cache. */
-  listItems(cacheKey: string, fallback?: () => Promise<any[]>): Promise<any[]>;
+  listItems(
+    opts: ListQueryOpts,
+    fallback?: () => Promise<any[]>
+  ): Promise<PaginatedDBResults<any>>;
   
   /** Reset `ADI` to pre-initialized state. Disables reading from/writing to cache: use on [ user disconnect, app pause, etc ] */
   onApplicationEnd(): void;
@@ -68,12 +78,15 @@ interface AppDataInterface {
   /** Initializes the `ADI` and gets it ready for front-end (or other app) interaction */
   onApplicationStart(): void;
   
-  /** Retrieve (or optionally fetch, cache, and return) data from a db/cache */
+  /** Notify subscribers with data from a db/cache */
   publishItem(
     key: string,
     cacheKey?: string,
     fallback?: () => Promise<any | null>
-  ): Promise<any | null>;
+  ): void;
+  
+  /** Notify subscribers with a retrieved list. */
+  publishItems(opts: ListQueryOpts, fallback?: () => Promise<any[]>): void;
   
   /** Remove data from the cache (or localStorage if no `cacheKey`) */
   removeItem(key: string, cacheKey?: string): any;
@@ -87,6 +100,7 @@ interface AppDataInterface {
     caches: string[],
     withinBounds?: (updatedKey: string, newVal?: any, cache?: string) => boolean
   ): Unsubscriber;
+};
 }
 ```
 
@@ -146,16 +160,17 @@ const subscriber = (k, v, c) => {
 const unsubscribeCache = dataAPI.subscribe(subscriber);
 
 // Option 1: await the response and use it right away
-const a = await dataAPI.listItems("someDB")
+const a = await dataAPI.listItems({ cacheKey: "someDB" });
 
-// Option 2: To enforce unidirectional data-flow (external -> cache -> state),
-// call "publishItem" and wait for a subscription to be triggered.
-dataAPI.listItems("someDB");
+// Option 2: Unidirectional data-flow (cache -> state -> UI),
+dataAPI.subscribeToCaches((k, v) => { ... }, ["someDB"]);
+// Call "publishItem" and wait for a subscription to be triggered.
+dataAPI.publishItems({ cacheKey: "someDB" });
 ```
   
 
-### `async ADI.publishItem( key: string, cache?: string, fb?: () => Promise<any> )`
-Retrieve data from the cache, and publish to all subscribers. Takes an optional `fallback` function to fetch the data if it is not in cache. If used, the `fallback` response will be cached for future reference. 
+### `async ADI.getItem( key: string, cache?: string, fb?: () => Promise<any> )`
+Retrieve data from the cache. Takes an optional `fallback` function to fetch the data if it is not in cache. If used, the `fallback` response will be cached for future reference, and subscribers will be notified. 
 
 **Note:** if a `cache` key is not supplied, `ADI` will attempt to read from `localStorage`.
 
@@ -171,11 +186,15 @@ const subscriber = (k, v, c) => {
 const unsubscribeCache = dataAPI.subscribe(subscriber);
 
 // Option 1: await the response and use it right away
-const a = await dataAPI.publishItem("someKey")
+const a = await dataAPI.getItem("someKey")
 
-// Option 2: To enforce unidirectional data-flow (external -> cache -> state),
+// Option 2: unidirectional data-flow (cache -> state -> UI),
 // call "publishItem" and wait for a subscription to be triggered.
-dataAPI.publishItem("someKey");
+dataAPI.subscribeToCaches( ..., ["someCache"]);
+dataAPI.publishItem("someKey", "someCache");
+
+// Stop listening
+unsubscribe();
 ```
   
 ### `ADI.cacheItem( key: string, value: any, cache?: string )`
@@ -212,7 +231,13 @@ dataAPI.removeItem("someKey", "someTable");
 ```
 ---
 
-## Mutation watch (subscribing for changes)
+## Publishing and subscribing to changes
+Note that the `ADI` will always broadcast changes to cache (i.e. whenever `ADI.cacheItem` or `ADI.cacheMultiple` is called). Otherwise, you can selectively **retrieve and use data** from a cache, or **retrieve and publish data** to all subscribers without receiving a return value.
+
+### `ADI.publishItems( opts: ListQueryOpts )`
+Retrieve and broadcast a list using the options specified in `opts`. Supports paginated queries/responses if implemented.
+### `ADI.publishItem( key: string, cache?: string, fallback:() => Promise<any> )`
+Like `getItem`, retrieves a single item from cache, but broadcasts to all subscribers without returning the item.
 
 ### `ADI.subscribe( listener: ListenerFn )`
 ### `ADI.subscribeToCaches( listener: ListenerFn, caches: string[] )`
