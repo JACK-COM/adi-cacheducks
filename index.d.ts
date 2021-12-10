@@ -13,11 +13,15 @@ declare type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /** Query options for listing all items in a db */
 declare type ListQueryOpts = {
-  cacheKey: string;
   page?: number;
   resultsPerPage?: number;
   orderBy?: string;
-};
+} & Record<string, any>;
+
+/** Query options for listing all items through ADI */
+declare type ADIListQueryOpts<T> = {
+  cacheKey: keyof T;
+} & ListQueryOpts;
 
 /** Query results for a "List items" request (allows pagination) */
 declare type PaginatedDBResults<T> = {
@@ -52,7 +56,7 @@ declare type AppDataInterface<T> = {
   ): Promise<any | null>;
   /** Retrieve a list from the specified cache. */
   listItems(
-    opts: ListQueryOpts,
+    opts: ADIListQueryOpts<T>,
     fallback?: () => Promise<any[]>
   ): Promise<PaginatedDBResults<any>>;
   /** Reset `ADI` to pre-initialized state. Disables reading from/writing to cache: use on [ user disconnect, app pause, etc ] */
