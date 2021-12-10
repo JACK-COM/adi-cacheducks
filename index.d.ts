@@ -1,5 +1,5 @@
 declare type Unsubscriber = { (): any };
-declare type CacheItemArgs = { key: string; value: any; cacheKey?: string };
+declare type CacheItemArgs<T> = { key: string; value: any; cacheKey?: keyof T };
 /**
  * Function that accepts a recently-updated object `key`, the new
  * value for `key` (`item`), and an optional `cacheKey` to identify
@@ -37,11 +37,11 @@ declare type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
 };
 
 /** Data Interface (`ADI`) instance */
-declare type AppDataInterface = {
+declare type AppDataInterface<T> = {
   /** Write an incoming value to the supplied `cache`, or remove the supplied `key` if `value` is falsy (`undefined` or `null`). */
-  cacheItem(key: string, value: any, cacheKey?: string): any;
+  cacheItem(key: string, value: any, cacheKey?: keyof T): any;
   /** Write incoming values to their respective `caches`, or remove the supplied `key` if `items[x].value` is falsy (`undefined` or `null`). */
-  cacheMultiple(items: CacheItemArgs[]): void;
+  cacheMultiple(items: CacheItemArgs<T>[]): void;
   /** Asserts whether the `ADI` instance has been initialized with a call to` onApplicationStart()`. */
   isInitialized(): boolean;
   /** Retrieve (or optionally fetch, cache, and return) data from a db/cache */
@@ -62,13 +62,13 @@ declare type AppDataInterface = {
   /** Notify subscribers with data from a db/cache */
   publishItem(
     key: string,
-    cacheKey?: string,
+    cacheKey?: keyof T,
     fallback?: () => Promise<any | null>
   ): void;
   /** Notify subscribers with a retrieved list. */
   publishItems(opts: ListQueryOpts, fallback?: () => Promise<any[]>): void;
   /** Remove data from the cache (or localStorage if no `cacheKey`) */
-  removeItem(key: string, cacheKey?: string): any;
+  removeItem(key: string, cacheKey?: keyof T): any;
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
   subscribe(listener: KeyValConsumer): Unsubscriber;
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
@@ -83,6 +83,6 @@ declare type AppDataInterface = {
  * Creates and returns an `ADI` instance, which can be used for
  * reading/writing/updating your application cache.
  */
-declare function createDataCacheAPI(cacheMap: ADICacheDBMap): AppDataInterface;
+declare function createDataCacheAPI<T extends ADICacheDBMap>(cacheMap: T): AppDataInterface<T>;
 
 export = createDataCacheAPI;
