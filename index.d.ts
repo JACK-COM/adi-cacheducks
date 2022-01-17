@@ -77,9 +77,9 @@ declare type AppDataInterface<T extends Record<string, any>> = {
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
   subscribe(listener: KeyValConsumer): Unsubscriber;
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
-  subscribeToCaches(
+  subscribeToCaches<C extends keyof T>(
     listener: KeyValConsumer,
-    caches: keyof T[],
+    caches: C[],
     withinBounds?: (
       updatedKey: string,
       newVal?: any,
