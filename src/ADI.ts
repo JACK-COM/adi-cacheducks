@@ -80,7 +80,10 @@ export async function publishItems(
 export function removeItem(key: string, cacheKey?: string) {
   if (!initialized) {
     publishError("ADI is not initialized");
-  } else cache?.removeItem(key, cacheKey);
+  } else {
+    cache?.removeItem(key, cacheKey);
+    notifyAll(key, null, cacheKey);
+  }
 }
 
 export function onApplicationEnd() {

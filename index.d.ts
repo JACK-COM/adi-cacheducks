@@ -19,9 +19,7 @@ declare type ListQueryOpts = {
 } & Record<string, any>;
 
 /** Query options for listing all items through ADI */
-declare type ADIListQueryOpts<T> = {
-  cacheKey: keyof T;
-} & ListQueryOpts;
+declare type ADIListQueryOpts<T> = ListQueryOpts & { cacheKey: keyof T };
 
 /** Query results for a "List items" request (allows pagination) */
 declare type PaginatedDBResults<T> = {
@@ -41,7 +39,7 @@ declare type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
 };
 
 /** Data Interface (`ADI`) instance */
-declare type AppDataInterface<T> = {
+declare type AppDataInterface<T extends Record<string, any>> = {
   /** Write an incoming value to the supplied `cache`, or remove the supplied `key` if `value` is falsy (`undefined` or `null`). */
   cacheItem(key: string, value: any, cacheKey?: keyof T): any;
   /** Write incoming values to their respective `caches`, or remove the supplied `key` if `items[x].value` is falsy (`undefined` or `null`). */
@@ -51,7 +49,7 @@ declare type AppDataInterface<T> = {
   /** Retrieve (or optionally fetch, cache, and return) data from a db/cache */
   getItem(
     key: string,
-    cacheKey?: string,
+    cacheKey?: keyof T,
     fallback?: () => Promise<any | null>
   ): Promise<any | null>;
   /** Retrieve a list from the specified cache. */
@@ -70,7 +68,10 @@ declare type AppDataInterface<T> = {
     fallback?: () => Promise<any | null>
   ): void;
   /** Notify subscribers with a retrieved list. */
-  publishItems(opts: ListQueryOpts, fallback?: () => Promise<any[]>): void;
+  publishItems(
+    opts: ADIListQueryOpts<T>,
+    fallback?: () => Promise<any[]>
+  ): void;
   /** Remove data from the cache (or localStorage if no `cacheKey`) */
   removeItem(key: string, cacheKey?: keyof T): any;
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
@@ -78,8 +79,12 @@ declare type AppDataInterface<T> = {
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */
   subscribeToCaches(
     listener: KeyValConsumer,
-    caches: string[],
-    withinBounds?: (updatedKey: string, newVal?: any, cache?: string) => boolean
+    caches: keyof T[],
+    withinBounds?: (
+      updatedKey: string,
+      newVal?: any,
+      cache?: keyof T
+    ) => boolean
   ): Unsubscriber;
 };
 
@@ -87,6 +92,8 @@ declare type AppDataInterface<T> = {
  * Creates and returns an `ADI` instance, which can be used for
  * reading/writing/updating your application cache.
  */
-declare function createDataCacheAPI<T extends ADICacheDBMap>(cacheMap: T): AppDataInterface<T>;
+declare function createDataCacheAPI<T extends ADICacheDBMap>(
+  cacheMap: T
+): AppDataInterface<T>;
 
 export = createDataCacheAPI;
