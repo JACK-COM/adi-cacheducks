@@ -72,6 +72,7 @@ export async function publishItems(
   opts: ListQueryOpts,
   fallback = () => Promise.resolve([] as any)
 ) {
+  if (!opts.cacheKey) publishError("Can't publish all items from LocalStorage");
   const data = await listItems(opts, fallback);
   notifyAll("all", data, opts.cacheKey);
 }
@@ -80,7 +81,10 @@ export async function publishItems(
 export function removeItem(key: string, cacheKey?: string) {
   if (!initialized) {
     publishError("ADI is not initialized");
-  } else cache?.removeItem(key, cacheKey);
+  } else {
+    cache?.removeItem(key, cacheKey);
+    if (cacheKey) publishItems({ cacheKey });
+  }
 }
 
 export function onApplicationEnd() {
