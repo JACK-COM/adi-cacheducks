@@ -1,15 +1,14 @@
-# **Application Data Cache API** Spec
+# **Application Data Interface** (ADI)
 
 ## `ADI` Description
-The **Data Cache API** (or *Application Data Interface* -- `ADI`) is a **pub-sub cache manager for the front-end**. It is used for predictable data-fetching and caching in a front-end application.\
-The interface focuses on locally (and efficiently) storing and retrieving application data, while remaining independent of UI frameworks or programming paradigms. Developers can implement using either OOP or functional approaches, without penalties either way.
+The *Application Data Interface* (`ADI`) is a **pub-sub cache manager for the front-end**. It is used for predictable data-fetching and caching in a front-end application.\
+The `ADI` focuses on retrieving locally-stored application data, independent of UI frameworks, programming paradigms, or cache implementations. 
 
 ---
-## Definitions
+## Definitions/Terms
 
-The terms below are kept deliberately vague so that the implementer can choose the best tools for their task.
 * `ADI`: The **App data interface** instance generated for you by the library. 
-* `cache`: any data cache implementation, such as `IndexedDB` or `localForage` in browsers, or `Redis` in the backend. This `MUST` be provided to `ADI` on initialization.
+* `cache`: any data cache implementation, such as `IndexedDB` or `localForage` in browsers. This `MUST` be provided to `ADI` on initialization.
 
 **Note that** the `cache` `MUST` be supplied to `ADI` on initialization, since the latter writes to/reads from the former during the application lifecycle. 
 
@@ -17,11 +16,11 @@ The terms below are kept deliberately vague so that the implementer can choose t
 
 # **Application Data Interface** | Exports
 The library contains a single export, `createDataCacheAPI( cacheMap: ADICacheDBMap )`\
-This function expects a valid `cacheMap`, a key-value store where every `key` is the name of a `storage` or `cache` instance (e.g. name of a table in **IndexedDB**) and the *value* of the key is an object that implements `ADIDBInterface`, such that:
-### Example of an implementation
+This function expects a `cacheMap`, a key-value store where every `key` is the name of a `storage` or `cache` instance (e.g. name of a table in **IndexedDB**) and the `value` of the key is an object that implements `ADIDBInterface`, as below:
+### Example implementation
 ```typescript
-// The "cachemap" should be where you put all your local db APIs.
-// Below, we have a single "users" API for a local "users" table
+// Below, we create a cacheMap for a "users" table in indexedDB. 
+// The "cachemap" is where you put ALL your local db APIs.
 const cacheMap = {
   users: {
     async listItems(opts: ListQueryOpts) { ... },
@@ -31,11 +30,11 @@ const cacheMap = {
   }
 }
 
-// Instantiate your cache interface
+// The fun part: create your ADI instance
 const ADI = createDataCacheAPI( cacheMap )
 ADI.onApplicationStart()
 
-// Asynchronously fetch or list items from the db
+// Now you can asynchronously fetch or list items from the db
 ADI.publishItem(someId, "users").then( ... )
 ADI.listItems({ cacheKey: "users" }).then( ... )
 
@@ -108,7 +107,7 @@ interface AppDataInterface {{
 
 ## Lifecycle
 
-### `ADI.isInitialized(): boolean`
+### `ADI.isInitialized( ): boolean`
 Asserts whether the `ADI` instance has been initialized with a call to` onApplicationStart()`. While this value is `false`, any call to a non-`subscribe` method on the `ADI` instance will throw a gigantic flaming error.
 
 ### `ADI.onApplicationStart(  )`
@@ -122,7 +121,7 @@ dataAPI.cacheItem( ... ) // no errors
 ```
 
 
-### `ADI.onApplicationEnd()` 
+### `ADI.onApplicationEnd( )` 
 Reset `ADI` to pre-initialized state. Disables reading from/writing to cache: use on [ user disconnect, app pause, etc ]
 
 #### Example - Vue (contrived)
