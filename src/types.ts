@@ -15,7 +15,9 @@ export type PaginatedDBResults<T> = {
   page?: number;
 };
 
+/** Cache (or db implementation) API */
 export type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
+  clearItems?: () => any;
   listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: any): Promise<any | null>;
@@ -25,13 +27,14 @@ export type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
 export type ADICacheDBMap = { [name: string]: ADIDBInterface<any> };
 
 /**
- * INTERNAL: Interface for local `cache` read/write. The underlying
- * technology does not matter, as long as the supplied `cache`
- * property implements `ADIDBInterface`
+ * INTERNAL: Interface for local `cache` read/write. Talks to underlying
+ * `cache` property, which is expected to implement `ADIDBInterface`
  */
 export type ADICacheInterface = {
   /** List items in a specific db or storage cache */
   listItems(opts: ListQueryOpts): Promise<PaginatedDBResults<any>>;
+  /** Clear all items from a specific db or storage cache, or all if key "all" is provided */
+  clearItems(cacheKey?: string | "all"): any;
   /** Get an item from a db or storage cache */
   getItem(key: string, cache?: string): any | null;
   /** Add/Update an item in a db or storage cache */

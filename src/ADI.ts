@@ -121,6 +121,11 @@ export function subscribeToCaches(
   return unsubscribe(filter);
 }
 
+/** Clear all items from a specific db or storage cache, or all if key "all" is provided */
+export function clearItems(cacheKey?: string) {
+  return cache?.clearItems(cacheKey);
+}
+
 export function cacheItem(key: string, value: any, cacheKey?: string) {
   if (!initialized) publishError("ADI is not initialized");
   if (!key) publishError("Item Key was not supplied for caching");

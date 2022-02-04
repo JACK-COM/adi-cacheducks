@@ -1,10 +1,14 @@
 /**
  * @jest-environment jsdom
  */
+import { ADIDBInterface } from "types";
 import createDataCacheAPI from ".";
 
 /** db/localStorage CRUD Helper */
-const makeDBCache = () => ({
+const makeDBCache = (): ADIDBInterface<string> => ({
+  clearItems() {
+    return true;
+  },
   getItem(id: string) {
     return Promise.resolve(id);
   },
@@ -288,6 +292,9 @@ describe("Application Data Interface API", () => {
     expect(spy).not.toHaveBeenCalled();
     expect(spy2).not.toHaveBeenCalled();
     expect(localStorage.getItem("hello")).toBe(null);
+
+    spy.mockReset();
+    spy2.mockReset();
   });
 
   it("Removes from local db when a cacheKey is provided", async () => {
@@ -300,5 +307,46 @@ describe("Application Data Interface API", () => {
     testAPI.removeItem("hello", "items");
     expect(spy).toHaveBeenCalledWith("hello");
     expect(spy2).not.toHaveBeenCalled();
+
+    spy.mockReset();
+    spy2.mockReset();
+  });
+
+  it("Clears localStorage when a cacheKey is NOT provided", async () => {
+    const spy = jest.spyOn(cacheMap.items, "removeItem");
+    const spy2 = jest.spyOn(cacheMap.users, "removeItem");
+
+    localStorage.setItem("hello", "123");
+    expect(localStorage.getItem("hello")).toBe("123");
+    expect(spy).not.toHaveBeenCalled();
+    expect(spy2).not.toHaveBeenCalled();
+
+    testAPI.onApplicationStart();
+    testAPI.clearItems();
+    expect(spy).not.toHaveBeenCalled();
+    expect(spy2).not.toHaveBeenCalled();
+    expect(localStorage.getItem("hello")).toBe(null);
+
+    spy.mockReset();
+    spy2.mockReset();
+  });
+
+  it("Clears all local dbs when a cacheKey is provided as `all`", async () => {
+    const spy = jest.spyOn(cacheMap.items, "clearItems");
+    const spy2 = jest.spyOn(cacheMap.users, "clearItems");
+    expect(spy).not.toHaveBeenCalled();
+    expect(spy2).not.toHaveBeenCalled();
+
+    testAPI.onApplicationStart();
+    testAPI.cacheItem("hello", "123", "users");
+    expect(localStorage.getItem("hello")).toBe(null);
+
+    testAPI.clearItems("all");
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem("hello")).toBe(null);
+
+    spy.mockReset();
+    spy2.mockReset();
   });
 });

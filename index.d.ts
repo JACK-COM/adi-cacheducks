@@ -16,10 +16,14 @@ declare type ListQueryOpts = {
   page?: number;
   resultsPerPage?: number;
   orderBy?: string;
+  where?: any;
 } & Record<string, any>;
 
 /** Query options for listing all items through ADI */
-declare type ADIListQueryOpts<T> = ListQueryOpts & { cacheKey: keyof T };
+declare type ADIListQueryOpts<T> = ListQueryOpts & { 
+  cacheKey: keyof T 
+  where?: Partial<T>
+};
 
 /** Query results for a "List items" request (allows pagination) */
 declare type PaginatedDBResults<T> = {
@@ -32,6 +36,7 @@ declare type PaginatedDBResults<T> = {
 
 /** CRUD interface for a single database or other cache source */
 declare type ADIDBInterface<T> = Record<string, (...a: any[]) => any> & {
+  clearItems?: () => any;
   listItems(opts?: ListQueryOpts): Promise<PaginatedDBResults<T>>;
   getItem(id: any): Promise<T | null>;
   putItem(id: any, val: any): Promise<any | null>;
@@ -72,6 +77,8 @@ declare type AppDataInterface<T extends Record<string, any>> = {
     opts: ADIListQueryOpts<T>,
     fallback?: () => Promise<any[]>
   ): void;
+  /** Remove all data from the cache (or localStorage if no `cacheKey`) */
+  clearItems(cacheKey?: keyof T | "all"): any;
   /** Remove data from the cache (or localStorage if no `cacheKey`) */
   removeItem(key: string, cacheKey?: keyof T): any;
   /** Subscribe to `ADI` instance for notifications when a cached value (or a cache) is changed. */

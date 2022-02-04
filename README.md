@@ -23,6 +23,7 @@ This function expects a `cacheMap`, a key-value store where every `key` is the n
 // The "cachemap" is where you put ALL your local db APIs.
 const cacheMap = {
   users: {
+    async clearItems() { ... },
     async listItems(opts: ListQueryOpts) { ... },
     async getItem(id: any) { ... },
     async putItem(id: any, val: DBUser) { ... },
@@ -142,6 +143,10 @@ Reset `ADI` to pre-initialized state. Disables reading from/writing to cache: us
 ```
 
 ## Data Storage and Retrieval 
+
+### `async ADI.clearItems( cache?: string | "all" )`
+Clear all items from the specified cache. If no `cache` is specified, `ADI` will attempt to clear `localStorage`.\
+If the key `all` is provided as the cache, `ADI` will attempt to clear both `localStorage` and all dbs that implement `clearItem`. 
 
 ### `async ADI.listItems( cache: string, fb?: () => Promise<any> )`
 Retrieve a list from the specified cache. Takes an optional `fallback` function to fetch the data if it is not in cache. This will NOT write anything to cache or notify subscribers, since notification requires a single
