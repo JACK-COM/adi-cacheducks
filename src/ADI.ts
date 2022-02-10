@@ -141,7 +141,7 @@ export function cacheMultiple(items: CacheItemArgs[]) {
   if (!initialized) publishError("ADI is not initialized");
   if (!items.length) return;
 
-  // Track unique items being cached
+  // Track unique caches being updated
   const uniqueCaches = new Set<string>();
   // Cache items
   items.forEach(({ key, value, cacheKey }) => {
