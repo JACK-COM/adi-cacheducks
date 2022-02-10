@@ -141,9 +141,17 @@ export function cacheMultiple(items: CacheItemArgs[]) {
   if (!initialized) publishError("ADI is not initialized");
   if (!items.length) return;
 
+  // Track unique caches being updated
+  const uniqueCaches = new Set<string>();
+  // Cache items
   items.forEach(({ key, value, cacheKey }) => {
-    cacheItem(key, value, cacheKey);
+    if (cacheKey) uniqueCaches.add(cacheKey);
+    if (value) cache?.setItem(key, value, cacheKey);
+    else cache?.removeItem(key, cacheKey);
   });
+
+  // Notify of any changed caches
+  uniqueCaches.forEach((cacheKey) => listItems({ cacheKey }));
 }
 
 function notifyAll(key: string, val: any, cacheKey?: string) {

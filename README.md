@@ -203,7 +203,8 @@ unsubscribe();
   
 ### `ADI.cacheItem( key: string, value: any, cache?: string )`
 ### `ADI.cacheMultiple([ { key, value, cache? }, ... ])`
-Write an incoming value to the supplied `cache` implementation, or remove any existing value with the supplied `key` if `value` is falsy (`undefined` or `null`).
+Write an incoming value to the supplied `cache` implementation, or remove any existing value with the supplied `key` if `value` is falsy (`undefined` or `null`).\
+`ADI.cacheMultiple` will call `listItems` on all changed caches after the operation is complete.
 ```typescript
 const dataAPI = createDataCacheAPI( cacheMap );
 dataAPI.onApplicationStart();
@@ -219,8 +220,7 @@ dataAPI.cacheItem("someKey", someValue, "someTable");
 ```
 
 ### `async ADI.removeItem( key: string, cache?: string )`
-Remove data from the cache.\
-**Note:** if a `cache` key is not supplied, `ADI` will attempt to remove the key from `localStorage`.
+Remove data from the cache. If a `cache` key is not supplied, `ADI` will attempt to remove the key from `localStorage`.
 
 ```typescript
 const dataAPI = createDataCacheAPI( cacheMap );
