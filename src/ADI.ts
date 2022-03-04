@@ -151,7 +151,7 @@ export function cacheMultiple(items: CacheItemArgs[]) {
   });
 
   // Notify of any changed caches
-  uniqueCaches.forEach((cacheKey) => listItems({ cacheKey }));
+  uniqueCaches.forEach((cacheKey) => publishItems({ cacheKey }));
 }
 
 function notifyAll(key: string, val: any, cacheKey?: string) {
